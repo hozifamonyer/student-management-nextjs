@@ -1,8 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+// Prisma client is not used in this application anymore.
+// This file is kept only to avoid errors from any stale imports.
 
+const prisma = null;
 
-const adapter = new PrismaMariaDb({
+export default prisma;
+
   host: "localhost",
   port: 3306,
   user: "root",

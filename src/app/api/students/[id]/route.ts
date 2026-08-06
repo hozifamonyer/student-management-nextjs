@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
-import { deleteStudent, findStudentById, updateStudent } from "@/lib/studentStore";
+import { NextRequest, NextResponse } from "next/server";
+import { deleteStudent, updateStudent } from "@/lib/studentStore";
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const body = await req.json();
 
   const student = updateStudent(Number(id), {
@@ -25,10 +25,10 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   const deleted = deleteStudent(Number(id));
   if (!deleted) {
