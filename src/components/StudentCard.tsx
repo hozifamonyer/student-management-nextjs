@@ -1,6 +1,11 @@
 "use client";
 
-import { Student } from "@prisma/client";
+type Student = {
+  id: number;
+  name: string;
+  age: number;
+  department: string;
+};
 
 type Props = {
   student: Student;

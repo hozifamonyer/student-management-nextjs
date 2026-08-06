@@ -1,61 +1,44 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { deleteStudent, findStudentById, updateStudent } from "@/lib/studentStore";
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  try {
-    const { id } = await params;
-    const body = await req.json();
+  const { id } = params;
+  const body = await req.json();
 
-    const student = await prisma.student.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        name: body.name,
-        age: body.age,
-        department: body.department,
-      },
-    });
+  const student = updateStudent(Number(id), {
+    name: body.name,
+    age: body.age,
+    department: body.department,
+  });
 
-    return NextResponse.json(student);
-  } catch (error) {
+  if (!student) {
     return NextResponse.json(
-      { message: "Update failed" },
-      { status: 500 }
+      { message: "Student not found" },
+      { status: 404 }
     );
   }
+
+  return NextResponse.json(student);
 }
 
-
-// DELETE
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  try {
-    const { id } = await params;
+  const { id } = params;
 
-    await prisma.student.delete({
-      where: {
-        id: Number(id),
-      },
-    });
-
-    return NextResponse.json({
-      message: "Student deleted",
-    });
-
-  } catch (error) {
+  const deleted = deleteStudent(Number(id));
+  if (!deleted) {
     return NextResponse.json(
-      {
-        message: "Delete failed",
-      },
-      {
-        status: 500,
-      }
+      { message: "Student not found" },
+      { status: 404 }
     );
   }
+
+  return NextResponse.json({
+    message: "Student deleted",
+  });
 }

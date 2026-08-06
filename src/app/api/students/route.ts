@@ -1,96 +1,37 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { createStudent, getStudentsPage, getTotalStudents } from "@/lib/studentStore";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-
   const sort = searchParams.get("sort");
-
   const page = Number(searchParams.get("page")) || 1;
-
   const limit = 6;
 
-  const skip = (page - 1) * limit;
+  const students = getStudentsPage(page, limit, sort);
+  const totalStudents = getTotalStudents();
 
-  const students = await prisma.student.findMany({
-    skip,
-    take: limit,
-
-    orderBy:
-      sort === "name"
-        ? { name: "asc" }
-        : sort === "age"
-        ? { age: "asc" }
-        : { id: "desc" },
-  });
-     const totalStudents = await prisma.student.count();
-
-return NextResponse.json({
-
+  return NextResponse.json({
     students,
-
     totalStudents,
-
     currentPage: page,
-
-    totalPages: Math.ceil(totalStudents / limit)
-
-});
+    totalPages: Math.ceil(totalStudents / limit),
+  });
 }
 
-// POST
-export async function POST(req: Request){
+export async function POST(req: Request) {
+  const body = await req.json();
+  const student = createStudent({
+    name: body.name,
+    age: body.age,
+    department: body.department,
+  });
 
-    const body = await req.json();
-     
-
-    const student = await prisma.student.create({
-
-        data:{
-            name: body.name,
-            age: body.age,
-            department: body.department
-        }
-
-    });
-
-
-    return NextResponse.json(
-        student,
-        {
-            status:201
-        }
-    );
-
+  return NextResponse.json(student, {
+    status: 201,
+  });
 }
-   
-export async function PUT(
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) {
 
-    const { id } = await params;
-
-    const body = await req.json();
-
-    const student = await prisma.student.update({
-
-        where: {
-            id: Number(id),
-        },
-
-        data: {
-            name: body.name,
-            age: body.age,
-            department: body.department,
-        },
-
-    });
-
-    return NextResponse.json(student);
-
-}
-   
    
    /*
     
